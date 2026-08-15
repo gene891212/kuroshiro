@@ -1,0 +1,6 @@
+# Git hooks and shell scripts must keep LF endings. With core.autocrlf=true a
+# checkout would otherwise rewrite them to CRLF, and a shebang ending in \r
+# makes the hook unrunnable on Windows ("cannot spawn ...: No such file or
+# directory").
+.husky/** text eol=lf
+*.sh text eol=lf
