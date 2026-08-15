@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  },
+  "include": [
+    "test/published-api-esm.types.mts",
+    "test/published-api-cjs.types.cts"
+  ],
+  "exclude": []
+}

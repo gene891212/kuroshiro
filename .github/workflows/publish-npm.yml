@@ -31,9 +31,8 @@ jobs:
       - name: Run tests
         run: pnpm test
 
-      - name: Build project
-        run: pnpm run build
-
+      # `pnpm publish` runs the `prepack` script, which builds and typechecks
+      # the published export surface. Doing it here too would just duplicate it.
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks
         env:

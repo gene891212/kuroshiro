@@ -43,6 +43,21 @@ export interface ConvertOptions {
     delimiter_end?: string;
 }
 
+/** Conversion options for modes that return a string. */
+export interface StringConvertOptions extends ConvertOptions {
+    mode?: Exclude<ConvertMode, "furigana_segments" | "furigana_map">;
+}
+
+/** Conversion options for structured furigana segments. */
+export interface FuriganaSegmentsConvertOptions extends ConvertOptions {
+    mode: "furigana_segments";
+}
+
+/** Conversion options for the deprecated furigana map format. */
+export interface FuriganaMapConvertOptions extends ConvertOptions {
+    mode: "furigana_map";
+}
+
 /**
  * A single segment of furigana_segments output.
  * `text` is a slice of the original input; `ruby` is present only when the
