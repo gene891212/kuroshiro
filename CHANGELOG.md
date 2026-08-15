@@ -1,3 +1,32 @@
+<a name="2.2.0"></a>
+## [2.2.0](https://github.com/gene891212/kuroshiro-enhance/compare/v2.1.0...v2.2.0) (2026-08-15)
+
+No runtime behaviour changes — this release is entirely type-level and tooling work.
+
+### Types
+
+* `convert()` is now overloaded on `mode`, so the return type is no longer widened to `string | FuriganaMapResult | FuriganaSegment[]` on every call:
+  * `mode: "furigana_segments"` → `Promise<FuriganaSegment[]>`
+  * `mode: "furigana_map"` → `Promise<FuriganaMapResult>`
+  * all other modes, and the default → `Promise<string>`
+  * passing a variable typed as `ConvertOptions` still returns the union, as before
+* Export `StringConvertOptions`, `FuriganaSegmentsConvertOptions` and `FuriganaMapConvertOptions` for callers that build their options object separately from the `convert()` call
+
+> **Note for TypeScript users:** because the return type is now narrower, defensive checks that used to be valid against the union — for example `typeof result === "string"` after a `furigana_map` call — may now be reported as an unnecessary comparison. Runtime behaviour is unchanged; only the static type differs.
+
+### CI
+
+* Fix the publish workflow. It installed pnpm with `npm install -g pnpm`, which now resolves to pnpm 11 and requires Node >= 22.13, while the job ran on Node 18 — so any tag push since pnpm 11 shipped would have failed at `pnpm install`. pnpm is now installed via `pnpm/action-setup@v4`, pinned to the same major as ci.yml, on Node 20
+* Add `typecheck:package`, which typechecks the built `.d.ts` and `.d.mts` through Node16 resolution so a broken `exports` map cannot reach npm. Wired into CI after `build`, and into a new `prepack` script so local `npm publish` is covered too
+* Add type-level tests for both the source API and the published declaration files, including `@ts-expect-error` cases so a regression to `any` fails the build instead of passing silently
+* Fix the husky pre-commit hook, which was missing the v8 header and therefore never ran. Pin LF endings for `.husky/**` so `core.autocrlf` cannot break it again
+* Drop the `no-explicit-any` / `no-var-requires` ESLint relaxations and the `allowJs`/`checkJs` compiler options left over from the JavaScript migration. Removing the rules block also turns the `ignores` entry into a global ignore, so `dist/`, `lib/` and `coverage/` are now genuinely skipped
+* Consolidate the pnpm build settings onto `allowBuilds`, which replaces `onlyBuiltDependencies` (removed in pnpm 11)
+
+### Internal
+
+* Rewrite `patchTokens` to compute each token's `reading` up front and return a properly typed result, removing the cast at the call site. Behaviour is unchanged, including leaving an existing all-katakana reading untouched
+
 <a name="2.1.0"></a>
 ## [2.1.0](https://github.com/gene891212/kuroshiro-enhance/compare/v2.0.0...v2.1.0) (2026-07-07)
 

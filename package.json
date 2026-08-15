@@ -1,6 +1,6 @@
 {
   "name": "kuroshiro-enhance",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "kuroshiro is a Japanese language library for converting Japanese sentence to Hiragana, Katakana or Romaji with furigana and okurigana modes supported.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
