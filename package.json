@@ -22,12 +22,14 @@
   ],
   "scripts": {
     "prepare": "husky install",
+    "prepack": "npm run build && npm run typecheck:package",
     "dev": "tsup --watch",
     "build": "cross-env NODE_ENV=production tsup && node -e \"const fs=require('fs'); fs.renameSync('dist/index.global.js', 'dist/kuroshiro.min.js'); fs.renameSync('dist/index.global.js.map', 'dist/kuroshiro.min.js.map');\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
+    "typecheck:package": "tsc --noEmit -p tsconfig.publish.json",
     "lint": "eslint src test",
     "clean": "rimraf dist coverage"
   },
@@ -85,7 +87,7 @@
     "node": ">=18.0.0"
   },
   "lint-staged": {
-    "src/**/*.{js,ts}": "eslint",
-    "test/**/*.{js,ts}": "eslint"
+    "src/**/*.ts": "eslint",
+    "test/**/*.{ts,mts,cts}": "eslint"
   }
 }

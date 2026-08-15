@@ -5,11 +5,6 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
-      // more relaxed rules for the migration phase
-    },
     ignores: ['dist/**', 'lib/**', 'coverage/**', 'node_modules/**', 'docs/**'],
   }
 );

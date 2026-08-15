@@ -8,18 +8,21 @@ import Kuroshiro from "../src/index";
 import { patchTokens } from "../src/util";
 
 describe("Kuroshiro Node Initialization Test", () => {
-    let kuroshiro: any;
+    let kuroshiro: Kuroshiro;
 
     beforeAll(async () => {
         kuroshiro = new Kuroshiro();
     });
     it("Invalid Initialization Parameter(1)", async () => {
+        // @ts-expect-error Deliberately exercise the runtime validation boundary.
         await expect(kuroshiro.init()).rejects.toThrow();
     });
     it("Invalid Initialization Parameter(2)", async () => {
+        // @ts-expect-error Deliberately exercise the runtime validation boundary.
         await expect(kuroshiro.init("param")).rejects.toThrow();
     });
     it("Invalid Initialization Parameter(3)", async () => {
+        // @ts-expect-error Deliberately exercise the runtime validation boundary.
         await expect(kuroshiro.init({})).rejects.toThrow();
     });
     it("Repeated Initialization", async () => {
@@ -35,7 +38,7 @@ describe("Kuroshiro Node Funtional Test", () => {
     const EXAMPLE_TEXT2 = "ブラウン管への愛が足りねぇな";
     const EXAMPLE_TEXT3 = "関ヶ原の戦い";
 
-    let kuroshiro: any;
+    let kuroshiro: Kuroshiro;
 
     beforeAll(async () => {
         kuroshiro = new Kuroshiro();
@@ -43,14 +46,17 @@ describe("Kuroshiro Node Funtional Test", () => {
     });
     it("Convert - Wrong Parameter - Invalid Target Syllabary", async () => {
         const ori = EXAMPLE_TEXT;
+        // @ts-expect-error Deliberately exercise the runtime validation boundary.
         await expect(kuroshiro.convert(ori, { to: "xxxx" })).rejects.toThrow();
     });
     it("Convert - Wrong Parameter - Invalid Conversion Mode", async () => {
         const ori = EXAMPLE_TEXT;
+        // @ts-expect-error Deliberately exercise the runtime validation boundary.
         await expect(kuroshiro.convert(ori, { to: "hiragana", mode: "xxxx" })).rejects.toThrow();
     });
     it("Convert - Wrong Parameter - Invalid Romanization System", async () => {
         const ori = EXAMPLE_TEXT;
+        // @ts-expect-error Deliberately exercise the runtime validation boundary.
         await expect(kuroshiro.convert(ori, { to: "hiragana", romajiSystem: "xxxx" })).rejects.toThrow();
     });
     it("Token Patch", () => {
@@ -487,14 +493,15 @@ describe("Kuroshiro Node Funtional Test", () => {
     it("furigana_segments text joins back to the original input", async () => {
         const ori = EXAMPLE_TEXT;
         const result = await kuroshiro.convert(ori, { mode: "furigana_segments", to: "hiragana" });
-        expect(result.map((s: { text: string }) => s.text).join("")).toEqual(ori);
+        expect(result.map(s => s.text).join("")).toEqual(ori);
     });
     it("furigana_map warns about deprecation once and still returns the old format", async () => {
-        kuroshiro._furiganaMapDeprecationWarned = false;
+        const freshKuroshiro = new Kuroshiro();
+        await freshKuroshiro.init(new KuromojiAnalyzer());
         const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
         try {
-            const result = await kuroshiro.convert(EXAMPLE_TEXT3, { mode: "furigana_map", to: "hiragana" });
-            await kuroshiro.convert(EXAMPLE_TEXT3, { mode: "furigana_map", to: "hiragana" });
+            const result = await freshKuroshiro.convert(EXAMPLE_TEXT3, { mode: "furigana_map", to: "hiragana" });
+            await freshKuroshiro.convert(EXAMPLE_TEXT3, { mode: "furigana_map", to: "hiragana" });
             expect(warnSpy).toHaveBeenCalledTimes(1);
             expect(warnSpy.mock.calls[0][0]).toContain("furigana_map");
             expect(result).toHaveProperty("ruby");

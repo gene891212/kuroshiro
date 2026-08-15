@@ -9,7 +9,7 @@ import Kuroshiro from "../src/index";
 describe("Kuroshiro Browser Test", () => {
     const EXAMPLE_TEXT = "感じ取れたら手を繋ごう、重なるのは人生のライン and レミリア最高！";
 
-    let kuroshiro: any;
+    let kuroshiro: Kuroshiro;
 
     beforeAll(async () => {
         kuroshiro = new Kuroshiro();

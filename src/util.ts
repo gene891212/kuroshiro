@@ -1,5 +1,7 @@
 import type { Token } from "./types.js";
 
+export type PatchedToken = Token & { reading: string };
+
 const KATAKANA_HIRAGANA_SHIFT = "\u3041".charCodeAt(0) - "\u30a1".charCodeAt(0);
 const HIRAGANA_KATAKANA_SHIFT = "\u30a1".charCodeAt(0) - "\u3041".charCodeAt(0);
 const ROMANIZATION_SYSTEM = {
@@ -1478,28 +1480,27 @@ const getStrType = function (str: string) {
  * @param {Object} tokens Given tokens
  * @return {Object} Patched tokens
  */
-const patchTokens = function (tokens: Token[]): Token[] {
-    const result: Token[] = tokens.map(t => ({ ...t }));
-
-    // patch for token structure
-    for (let cr = 0; cr < result.length; cr++) {
-        if (hasJapanese(result[cr].surface_form)) {
-            if (!result[cr].reading) {
-                if (result[cr].surface_form.split("").every(isKana)) {
-                    result[cr].reading = toRawKatakana(result[cr].surface_form);
-                }
-                else {
-                    result[cr].reading = result[cr].surface_form;
-                }
+const patchTokens = function (tokens: Token[]): PatchedToken[] {
+    // Normalize every token into the internal shape required by conversion.
+    const result: PatchedToken[] = tokens.map(token => {
+        let reading: string;
+        if (hasJapanese(token.surface_form)) {
+            if (!token.reading) {
+                reading = token.surface_form.split("").every(isKana)
+                    ? toRawKatakana(token.surface_form)
+                    : token.surface_form;
             }
-            else if (hasHiragana(result[cr].reading!)) {
-                result[cr].reading = toRawKatakana(result[cr].reading!);
+            else {
+                reading = hasHiragana(token.reading)
+                    ? toRawKatakana(token.reading)
+                    : token.reading;
             }
         }
         else {
-            result[cr].reading = result[cr].surface_form;
+            reading = token.surface_form;
         }
-    }
+        return { ...token, reading };
+    });
 
     // patch for 助動詞"う" after 動詞
     for (let i = 0; i < result.length; i++) {

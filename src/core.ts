@@ -2,6 +2,7 @@ import {
     ROMANIZATION_SYSTEM,
     getStrType,
     patchTokens,
+    type PatchedToken,
     isHiragana,
     isKatakana,
     isKana,
@@ -20,7 +21,15 @@ import {
     kanaToKatakana,
     kanaToRomaji
 } from "./util.js";
-import type { Analyzer, ConvertOptions, FuriganaMapResult, FuriganaSegment, Token } from "./types.js";
+import type {
+    Analyzer,
+    ConvertOptions,
+    FuriganaMapConvertOptions,
+    FuriganaMapResult,
+    FuriganaSegment,
+    FuriganaSegmentsConvertOptions,
+    StringConvertOptions
+} from "./types.js";
 
 /**
  * Internal notation tuple produced while building okurigana/furigana output.
@@ -83,13 +92,17 @@ class Kuroshiro {
      * @param {string} str Given String
      * @param {Object} [options] Settings Object
      * @param {string} [options.to="hiragana"] Target syllabary ["hiragana"|"katakana"|"romaji"]
-     * @param {string} [options.mode="normal"] Convert mode ["normal"|"spaced"|"okurigana"|"furigana"]
+     * @param {string} [options.mode="normal"] Convert mode ["normal"|"spaced"|"okurigana"|"furigana"|"furigana_segments"|"furigana_map"]
      * @param {string} [options.includeKatakana=false] Whether to include Katakana in Furigana mode
      * @param {string} [options.romajiSystem="hepburn"] Romanization System ["nippon"|"passport"|"hepburn"]
      * @param {string} [options.delimiter_start="("] Delimiter(Start)
      * @param {string} [options.delimiter_end=")"] Delimiter(End)
      * @returns {Promise} Promise object represents the result of conversion
      */
+    convert(str: string, options: FuriganaSegmentsConvertOptions): Promise<FuriganaSegment[]>;
+    convert(str: string, options: FuriganaMapConvertOptions): Promise<FuriganaMapResult>;
+    convert(str: string, options?: StringConvertOptions): Promise<string>;
+    convert(str: string, options?: ConvertOptions): Promise<string | FuriganaMapResult | FuriganaSegment[]>;
     async convert(str: string, options?: ConvertOptions): Promise<string | FuriganaMapResult | FuriganaSegment[]> {
         options = options || {};
         options.to = options.to || "hiragana";
@@ -117,8 +130,7 @@ class Kuroshiro {
             throw new Error("Kuroshiro has not been initialized. Please call init() first.");
         }
         const rawTokens = await this._analyzer.parse(str);
-        type PatchedToken = Token & { reading: string };
-        const tokens = patchTokens(rawTokens) as PatchedToken[];
+        const tokens = patchTokens(rawTokens);
 
         if (options.mode === "normal" || options.mode === "spaced") {
             switch (options.to) {
@@ -128,7 +140,7 @@ class Kuroshiro {
                     }
                     return tokens.map(token => token.reading).join(" ");
                 case "romaji": {
-                    const romajiConv = (token: any) => {
+                    const romajiConv = (token: PatchedToken) => {
                         let preToken;
                         if (hasJapanese(token.surface_form)) {
                             preToken = token.pronunciation || token.reading;
